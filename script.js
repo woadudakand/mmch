@@ -14,12 +14,17 @@ window.addEventListener('load', () => {
     to.innerHTML = options;    
 
     let path = '';
-
+    let fromX = '';
+    let fromY = '';
+    let toX = '';
+    let toY = '';
     from.addEventListener('change', (event) => {
         const fromId = document.getElementById(event.target.value);
         const translate = fromId.getAttribute('transform').split(') ')[0].split(')')[0].split('(')[1];
         const translateX = translate.split(' ')[0];
         const translateY = translate.split(' ')[1];
+        fromX = translateX;
+        fromY = translateY;
         path += `M${translateX},${translateY}`;        
     });
     
@@ -28,9 +33,30 @@ window.addEventListener('load', () => {
         const translate = toId.getAttribute('transform').split(') ')[0].split(')')[0].split('(')[1];
         const translateX = translate.split(' ')[0];
         const translateY = translate.split(' ')[1];
-        path += `H${translateX}V${translateY}`;   
-        console.log(path);     
-        direction.setAttribute('d', path);
+        toX = translateX;
+        toY = translateY;
+        
+        if(fromX == toX || fromY == toY){
+            path += `H${translateX}V${translateY}`; 
+            direction.setAttribute('d', path);
+            // path = '';
+        } else {
+            // console.log("{"+fromX, fromY+"}", "{"+toX, toY+"}"); 
+            const turns = document.querySelectorAll('circle[id^="t-"]');
+            turns.forEach(turn => {
+                const turnTranslate = turn.getAttribute('transform').split(') ')[0].split(')')[0].split('(')[1];
+                
+                if(turnTranslate == fromX + " " + toY || turnTranslate == toX+" "+fromY){
+                    const turnTranslateX = turnTranslate.split(' ')[0];
+                    const turnTranslateY = turnTranslate.split(' ')[1];
+                    path += `H${turnTranslateX}V${turnTranslateY}H${translateX}V${translateY}`;
+                    direction.setAttribute('d', path);
+                } else {
+                    console.log(turnTranslate);
+                }
+            })
+
+        }
     });
 
 })
